@@ -10,10 +10,8 @@ from datetime import datetime
 import os
 import logging
 from rq import Queue
-from rq.job import Job
 from worker import conn
 from dotenv import load_dotenv
-import time
 
 # Load environment variables from .env file
 load_dotenv()
@@ -63,6 +61,7 @@ def scrape():
 
 @app.route("/job_status/<job_id>", methods=["GET"])
 def job_status(job_id):
+    from rq.job import Job
     job = Job.fetch(job_id, connection=conn)
     if job.is_finished:
         return jsonify(job.result), 200
