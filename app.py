@@ -67,11 +67,11 @@ def gather():
             if not existing_item:
                 item["prices"] = [{"price": item["sale_price"], "date": datetime.utcnow()}]
                 collection.insert_one(item)
-        data_set = {item['product_name'] for item in data}
-        all_documents = list(collection.find())
-        for listing in all_documents:
-            if listing["product_name"] not in data_set:
-                collection.delete_one({"_id": listing["_id"]})
+        #data_set = {item['product_name'] for item in data}
+        #all_documents = list(collection.find())
+        #for listing in all_documents:
+         #   if listing["product_name"] not in data_set:
+          #      collection.delete_one({"_id": listing["_id"]})
         return jsonify({"message": "Database updated successfully"}), 200
     except Exception as e:
         logging.error(f"Error in /gather: {str(e)}")
