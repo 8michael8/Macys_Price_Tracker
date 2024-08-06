@@ -91,10 +91,7 @@ def update_price():
         except Exception as e:
             print(f"Failed to update item {item['_id']}: {e}")
 
-# Setup the scheduler
-#scheduler = BackgroundScheduler()
-#scheduler.add_job(func=update_price, trigger="interval", hours=8, next_run_time=datetime.now())
 
 if __name__ == "__main__":
-    #scheduler.start()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
