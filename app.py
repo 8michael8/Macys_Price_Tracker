@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from gather import scrape_macys_data
 from individual import scrape_individual_item
@@ -9,7 +9,6 @@ from pymongo.server_api import ServerApi
 from datetime import datetime
 import os
 
-
 app = Flask(__name__, static_folder='frontend/build', static_url_path='/')
 CORS(app)
 
@@ -18,7 +17,6 @@ uri = os.environ.get("MONGO_URI")
 client = MongoClient(uri, server_api=ServerApi('1'))
 db = client["macysdata"]
 collection = db["items"]
-
 
 def serialize_doc(doc):
     doc['_id'] = str(doc['_id'])
@@ -65,6 +63,13 @@ def get_data():
     serialized_data = [serialize_doc(doc) for doc in data]
     return jsonify(serialized_data)
 
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists("frontend/build/" + path):
+        return send_from_directory('frontend/build', path)
+    else:
+        return send_from_directory('frontend/build', 'index.html')
 
 def update_price():
     print("Running scheduled update_price")
