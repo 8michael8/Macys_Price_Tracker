@@ -45,54 +45,35 @@ function App() {
     fetchData(); // Call the fetchData function
   }, [deviceId]);
 
-  const handleSubmit = async (event) => {
-  event.preventDefault();
-  setLoading(true);
-  setError(null);
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
 
-  try {
-    const res = await fetch("/scrape", {
+    fetch("/scrape", {
       method: "POST",
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ keyword: keyword })
-    });
-
-    if (!res.ok) {
-      throw new Error("Network response was not ok");
-    }
-
-    const data = await res.json();
-    const jobId = data.job_id;
-
-    const checkStatus = async () => {
-      const response = await fetch(`/job_status/${jobId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const jobStatus = await response.json();
-
-      if (jobStatus.status === "finished") {
-        setData(jobStatus.result);
-        setLoading(false);
-      } else if (jobStatus.status === "failed") {
-        setError("Job failed");
-        setLoading(false);
-      } else {
-        setTimeout(checkStatus, 1000);  // Poll every second
+    })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
       }
-    };
-
-    checkStatus();
-  } catch (error) {
-    setError(error);
-    setLoading(false);
-    console.error("There was a problem with the fetch operation:", error);
-  }
-};
+      return res.json();
+    })
+    .then(data => {
+      setData(data);
+      setLoading(false);
+      console.log(data);
+    })
+    .catch(error => {
+      setError(error);
+      setLoading(false);
+      console.error("There was a problem with the fetch operation:", error);
+    });
+  };
 
 const handleCheckboxChange = async (event, item) => {
     event.stopPropagation(); // Prevent the click event from bubbling up to the div
