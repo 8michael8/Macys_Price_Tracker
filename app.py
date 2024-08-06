@@ -13,8 +13,9 @@ app = Flask(__name__, static_folder='frontend/build', static_url_path='/')
 CORS(app)
 
 # Connect to MongoDB
-uri = os.environ.get("MONGO_URI")
-client = MongoClient(uri, server_api=ServerApi('1'))
+#uri = os.environ.get("MONGO_URI")
+#client = MongoClient(uri, server_api=ServerApi('1'))
+client = MongoClient("mongodb+srv://micleung168:yY4IqraFsBQ0HHmL@macys.5qpvkbi.mongodb.net/?retryWrites=true&w=majority&appName=macys", server_api=ServerApi('1'))
 db = client["macysdata"]
 collection = db["items"]
 
