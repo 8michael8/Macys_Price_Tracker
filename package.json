@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "waitress-serve --port=$PORT app:app",
+    "start": "concurrently \"npm start --prefix backend\" \"npm start --prefix frontend\"",
     "heroku-postbuild": "cd frontend && npm install && npm run build"
   },
   "devDependencies": {
