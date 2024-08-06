@@ -19,7 +19,7 @@ CORS(app)
 
 # Connect to MongoDB
 #uri = os.environ.get("MONGO_URI")
-client = MongoClient("mongodb+srv://micleung168:yY4IqraFsBQ0HHmL@macys.5qpvkbi.mongodb.net/?retryWrites=true&w=majority&ssl=true&tlsAllowInvalidCertificates=true&appName=macys", server_api=ServerApi('1'), tls=True, tlsAllowInvalidCertificates=True)
+client = MongoClient("mongodb+srv://micleung168:yY4IqraFsBQ0HHmL@macys.5qpvkbi.mongodb.net/?retryWrites=true&w=majority&appName=macys&tlsCAFile=isrgrootx1.pem", server_api=ServerApi('1'))
 db = client["macysdata"]
 collection = db["items"]
 
