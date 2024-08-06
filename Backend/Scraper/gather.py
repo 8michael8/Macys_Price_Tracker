@@ -1,0 +1,124 @@
+import asyncio
+from playwright.async_api import async_playwright
+import pandas as pd
+import re
+
+username = 'brd-customer-hl_01bbc4c4-zone-test_scrape'
+password = 'nnvharmf5k7n'
+auth = f'{username}:{password}'
+host = 'brd.superproxy.io:9222'
+browser_url = f'wss://{auth}@{host}'
+
+
+async def scrape_macys_data(keyword):
+    async with async_playwright() as pw:
+        # Extract information
+        results = []
+
+        attempts = 0
+        success = False
+
+        while attempts < 3 and not success:
+            try:
+                print(f"Attempt {attempts + 1}", flush=True)
+                # Wait for the main container to ensure the page is fully loaded
+                print('Connecting to browser')
+                # Launch new browser
+                browser = await pw.chromium.connect_over_cdp(browser_url)
+                print('Connected')
+                page = await browser.new_page()
+                print(f'Navigating to Macy\'s with keyword: {keyword}')
+                # Go to Macy's URL
+                await page.goto(
+                    f"https://www.macys.com/shop/search?keyword={keyword}",
+                    timeout=60000)
+                print('Data extraction in progress')
+
+                print("Waiting for main container", flush=True)
+
+                await page.wait_for_selector('div.mainContainer.grid-container', timeout=60000)
+                print('Main container found', flush=True)
+
+                # Select the main container
+                main_container = await page.query_selector('div.mainContainer.grid-container')
+                success = True
+            except Exception as e:
+                print(f"Attempt {attempts + 1} failed: {e}", flush=True)
+                attempts += 1
+                if attempts < 3:
+                    print("Retrying...", flush=True)
+                else:
+                    print("All attempts failed. Exiting.", flush=True)
+                    await browser.close()
+                    return []
+
+        if not success:
+            return []
+
+        # Extract listings within the main container
+        listings = await main_container.query_selector_all('div.productDescription')
+
+        print(f"Found {len(listings)} listings.")
+
+        # Limit to first 10 listings
+        for listing in listings[:10]:
+            result = {}
+
+            # Product Name
+            brand_element = await listing.query_selector('div.productBrand')
+            brand_name = (await brand_element.inner_text()).strip() if brand_element else 'N/A'
+
+            # Product description
+            product_desc_link = await listing.query_selector('a.productDescLink')
+            product_desc = (await product_desc_link.inner_text()).strip() if product_desc_link else 'N/A'
+
+            result['brand_name'] = brand_name
+
+            # Full product name
+            result['product_name'] = f"{product_desc}".strip().replace('\n', '').replace('adidas', '')
+
+
+            # Price
+            original_price_element = await listing.query_selector('span.regular')
+            sale_price_element = await listing.query_selector('span.discount')
+
+            if original_price_element:
+                result['original_price'] = (await original_price_element.inner_text()).strip()
+            else:
+                result['original_price'] = 'N/A'
+
+            if sale_price_element:
+                result['sale_price'] = (await sale_price_element.inner_text()).strip().replace('Sale ', '')
+            else:
+                result['sale_price'] = 'N/A'
+
+            # Rating and Number of reviews
+            rating_element = await listing.query_selector('div.stars')
+            if rating_element:
+                rating_text = (await rating_element.get_attribute('aria-label')).strip()
+                # Extract rating and number of reviews from the aria-label attribute
+                rating_match = re.search(r'([\d\.]+) out of 5 rating with ([\d,]+) reviews', rating_text)
+                if rating_match:
+                    result['rating'] = rating_match.group(1)
+                    result['number_of_reviews'] = int(rating_match.group(2).replace(',', ''))
+                else:
+                    result['rating'] = 'N/A'
+                    result['number_of_reviews'] = 'N/A'
+            else:
+                result['rating'] = 'N/A'
+                result['number_of_reviews'] = 'N/A'
+
+            #product link
+            product_href = (await product_desc_link.get_attribute('href')).strip() if product_desc_link else 'N/A'
+            result['product_link'] = f"https://macys.com{product_href}"
+
+
+            if result['product_name'] != 'N/A':
+                results.append(result)
+
+
+        # Close browser
+        await browser.close()
+        return results
+
+

@@ -1,0 +1,84 @@
+body {
+  background-color: white;
+}
+
+body.no-scroll {
+  overflow: hidden;
+}
+.load2 {
+  display: none;
+}
+.load {
+  display: contents;
+}
+
+.product, .saved {
+  border: 0.2vw solid black;
+  padding: 1vw;
+  margin-bottom: 1.5vh;
+  border-radius: 1vw;
+  transition: color 1s;
+}
+
+.product:hover {
+    background-color: yellow;
+}
+
+
+
+/* Add this CSS to your stylesheet */
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background: white;
+  padding: 2vw;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  height: 80%;
+  max-width: 900px;
+  max-height: 90%;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  background: none;
+  border: none;
+  font-size: 1.5vw;
+  cursor: pointer;
+  top: 1vh;
+  right: 1vw;
+  color: red;
+}
+
+.text {
+  margin-bottom: 2vh;
+}
+
+.innerText {
+  line-height: 1.5;
+  font-size: 1.2vw;
+  margin-bottom: 2vh;
+}
+
+.chart-container {
+  width: 100%;
+  height: 60%;
+  border: 1px solid black;
+  padding: 1vw;
+  box-sizing: border-box;
+}
