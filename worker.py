@@ -7,9 +7,8 @@ load_dotenv()
 
 listen = ['default']
 
-redis_url = os.getenv('REDIS_URL')
 
-conn = redis.from_url(redis_url)
+conn = redis.from_url("redis://localhost:6379/0")
 
 if __name__ == '__main__':
     with Connection(conn):
