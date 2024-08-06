@@ -1,29 +1,12 @@
 {
   "name": "AmazonProject",
   "version": "1.0.0",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "waitress-serve --port=$PORT app:app",
+    "start": "concurrently \"npm start --prefix backend\" \"npm start --prefix frontend\"",
     "heroku-postbuild": "cd frontend && npm install && npm run build"
   },
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "chart.js": "^4.4.3",
-    "react": "^18.3.1",
-    "react-chartjs-2": "^5.2.0",
-    "react-dom": "^18.3.1",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
-  },
-  "engines": {
-    "node": "16.x",
-    "npm": "8.x"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "devDependencies": {
+    "concurrently": "^6.0.0"
+  }
 }
