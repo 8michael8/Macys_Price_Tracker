@@ -8,16 +8,22 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from datetime import datetime
 import os
+import logging
+from gevent.pywsgi import WSGIServer
+from concurrent.futures import ThreadPoolExecutor
+
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__, static_folder='frontend/build', static_url_path='/')
 CORS(app)
 
 # Connect to MongoDB
-#uri = os.environ.get("MONGO_URI")
-#client = MongoClient(uri, server_api=ServerApi('1'))
-client = MongoClient("mongodb+srv://micleung168:yY4IqraFsBQ0HHmL@macys.5qpvkbi.mongodb.net/?retryWrites=true&w=majority&appName=macys", server_api=ServerApi('1'))
+uri = os.environ.get("MONGO_URI")
+client = MongoClient(uri, server_api=ServerApi('1'))
 db = client["macysdata"]
 collection = db["items"]
+
+executor = ThreadPoolExecutor(max_workers=5)
 
 def serialize_doc(doc):
     doc['_id'] = str(doc['_id'])
@@ -25,44 +31,64 @@ def serialize_doc(doc):
 
 @app.route("/scrape", methods=["POST"])
 def scrape():
-    data = request.get_json()
-    keyword = data.get('keyword', '')
-    if not keyword:
-        return jsonify({"error": "No keyword provided"}), 400
-    keyword = keyword.replace(' ', '-')
+    try:
+        logging.info("Scrape endpoint called")
+        data = request.get_json()
+        keyword = data.get('keyword', '')
+        logging.info(f"Keyword: {keyword}")
+        if not keyword:
+            return jsonify({"error": "No keyword provided"}), 400
+        keyword = keyword.replace(' ', '-')
+
+        future = executor.submit(scrape_task, keyword)
+        results = future.result()
+        return jsonify(results)
+    except Exception as e:
+        logging.error(f"Error in /scrape: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+def scrape_task(keyword):
     if keyword.isnumeric():
         results = asyncio.run(scrape_individual_item(keyword, None))
     else:
         results = asyncio.run(scrape_macys_data(keyword))
-    return jsonify(results)
+    return results
 
 @app.route("/gather", methods=["POST"])
 def gather():
-    data = request.get_json()
-    device_id = request.args.get('device_id')
-    if not device_id:
-        return jsonify({"message": "Device ID is required"}), 400
-    for item in data:
-        item["device_id"] = device_id
-        existing_item = collection.find_one({"product_name": item["product_name"], "device_id": device_id})
-        if not existing_item:
-            item["prices"] = [{"price": item["sale_price"], "date": datetime.utcnow()}]
-            collection.insert_one(item)
-    data_set = {item['product_name'] for item in data}
-    all_documents = list(collection.find())
-    for listing in all_documents:
-        if listing["product_name"] not in data_set:
-            collection.delete_one({"_id": listing["_id"]})
-    return jsonify({"message": "Database updated successfully"}), 200
+    try:
+        data = request.get_json()
+        device_id = request.args.get('device_id')
+        if not device_id:
+            return jsonify({"message": "Device ID is required"}), 400
+        for item in data:
+            item["device_id"] = device_id
+            existing_item = collection.find_one({"product_name": item["product_name"], "device_id": device_id})
+            if not existing_item:
+                item["prices"] = [{"price": item["sale_price"], "date": datetime.utcnow()}]
+                collection.insert_one(item)
+        data_set = {item['product_name'] for item in data}
+        all_documents = list(collection.find())
+        for listing in all_documents:
+            if listing["product_name"] not in data_set:
+                collection.delete_one({"_id": listing["_id"]})
+        return jsonify({"message": "Database updated successfully"}), 200
+    except Exception as e:
+        logging.error(f"Error in /gather: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/get_data", methods=["GET"])
 def get_data():
-    device_id = request.args.get('device_id')
-    if not device_id:
-        return jsonify({"message": "Device ID is required"}), 400
-    data = list(collection.find({"device_id": device_id}))
-    serialized_data = [serialize_doc(doc) for doc in data]
-    return jsonify(serialized_data)
+    try:
+        device_id = request.args.get('device_id')
+        if not device_id:
+            return jsonify({"message": "Device ID is required"}), 400
+        data = list(collection.find({"device_id": device_id}))
+        serialized_data = [serialize_doc(doc) for doc in data]
+        return jsonify(serialized_data)
+    except Exception as e:
+        logging.error(f"Error in /get_data: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -97,10 +123,7 @@ def update_price():
         except Exception as e:
             print(f"Failed to update item {item['_id']}: {e}")
 
-# Setup the scheduler
-#scheduler = BackgroundScheduler()
-#scheduler.add_job(func=update_price, trigger="interval", hours=8, next_run_time=datetime.now())
-
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    http_server = WSGIServer(('0.0.0.0', port), app)
+    http_server.serve_forever()

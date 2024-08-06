@@ -22,7 +22,7 @@ function App() {
   };
   const deviceId = getDeviceId();
 
-useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const response1 = await fetch(`/get_data?device_id=${deviceId}`, {
@@ -36,19 +36,6 @@ useEffect(() => {
         }
         const data1 = await response1.json();
         setCheckedItems(data1);
-
-        /*const response2 = await fetch(`/update_price?device_id=${deviceId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data1),
-        });
-        if (!response2.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data2 = await response2.json();
-        setCheckedItems(data2);*/
       } catch (error) {
         setError(error);
         console.error('Error', error);
@@ -128,36 +115,36 @@ const handleCheckboxChange = async (event, item) => {
     document.body.classList.remove('no-scroll');
   };
 
-
   if (error) {
     return <div>Error: {error.message}</div>;
   }
 
-const convertPriceToNumber = (price) => {
-  if (typeof price === 'number') {
-    return price;
-  }
-
-  if (typeof price === 'string') {
-    const number = parseFloat(price.replace(/[^0-9.-]+/g, ""));
-    if (isNaN(number)) {
-      return 0;
+  const convertPriceToNumber = (price) => {
+    console.log(price);
+    if (typeof price === 'number') {
+      return price;
     }
-    return number;
-  }
 
-  return 0;
-};
+    if (typeof price === 'string') {
+      const number = parseFloat(price.replace(/[^0-9.-]+/g, ""));
+      if (isNaN(number)) {
+        return 0;
+      }
+      return number;
+    }
 
-const convertListToNumber = (prices) => {
-  const priceList = [];
+    return 0;
+  };
 
-  prices.forEach(priceEntry => {
-    priceList.push(convertPriceToNumber(priceEntry.price));
-  });
-  console.log(priceList)
-  return priceList;
-};
+  const convertListToNumber = (prices) => {
+    const priceList = [];
+
+    prices.forEach(priceEntry => {
+      priceList.push(convertPriceToNumber(priceEntry.price));
+    });
+    console.log(priceList)
+    return priceList;
+  };
 
   return (
     <div>
