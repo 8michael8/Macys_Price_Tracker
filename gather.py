@@ -3,8 +3,8 @@ from playwright.async_api import async_playwright
 import pandas as pd
 import re
 
-username = 'brd-customer-hl_01bbc4c4-zone-test_scrape'
-password = 'nnvharmf5k7n'
+username = 'brd-customer-hl_01bbc4c4-zone-macys_scrape'
+password = '4i7oe41b7dpl'
 auth = f'{username}:{password}'
 host = 'brd.superproxy.io:9222'
 browser_url = f'wss://{auth}@{host}'

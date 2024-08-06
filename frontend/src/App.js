@@ -134,7 +134,6 @@ const handleCheckboxChange = async (event, item) => {
   }
 
 const convertPriceToNumber = (price) => {
-    console.log(price);
   if (typeof price === 'number') {
     return price;
   }
