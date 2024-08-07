@@ -11,8 +11,7 @@ import os
 import logging
 from gevent.pywsgi import WSGIServer
 from rq import Queue
-from rq.job import Job
-from worker import conn
+import redis
 
 logging.basicConfig(level=logging.INFO)
 
@@ -25,6 +24,9 @@ client = MongoClient(uri, server_api=ServerApi('1'))
 db = client["macysdata"]
 collection = db["items"]
 
+# Connect to Redis
+redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
+conn = redis.from_url(redis_url)
 q = Queue(connection=conn)
 
 def serialize_doc(doc):
