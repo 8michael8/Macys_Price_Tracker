@@ -64,9 +64,8 @@ function App() {
       return res.json();
     })
     .then(data => {
-      setData(data);
-      setLoading(false);
-      console.log(data);
+      const jobId = data.job_id;
+      checkJobStatus(jobId);
     })
     .catch(error => {
       setError(error);
@@ -75,7 +74,25 @@ function App() {
     });
   };
 
-const handleCheckboxChange = async (event, item) => {
+  const checkJobStatus = (jobId) => {
+    fetch(`/get_job/${jobId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'finished') {
+          setData(data.result);
+          setLoading(false);
+        } else {
+          setTimeout(() => checkJobStatus(jobId), 1000);
+        }
+      })
+      .catch(error => {
+        setError(error);
+        setLoading(false);
+        console.error("There was a problem with the fetch operation:", error);
+      });
+  };
+
+  const handleCheckboxChange = async (event, item) => {
     event.stopPropagation(); // Prevent the click event from bubbling up to the div
     const updatedCheckedItems = isItemChecked(item)
       ? checkedItems.filter(checkedItem => checkedItem.product_name !== item.product_name)

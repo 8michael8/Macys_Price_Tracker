@@ -12,6 +12,7 @@ import logging
 from gevent.pywsgi import WSGIServer
 from rq import Queue
 import redis
+from rq.job import Job
 
 logging.basicConfig(level=logging.INFO)
 
@@ -26,6 +27,7 @@ collection = db["items"]
 
 # Connect to Redis
 redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
+logging.info(f"Connecting to Redis at: {redis_url}")
 conn = redis.from_url(redis_url)
 q = Queue(connection=conn)
 
@@ -55,6 +57,18 @@ def scrape():
         return jsonify({"message": "Scraping started", "job_id": job.get_id()}), 202
     except Exception as e:
         logging.error(f"Error in /scrape: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/get_job/<job_id>", methods=["GET"])
+def get_job(job_id):
+    try:
+        job = Job.fetch(job_id, connection=conn)
+        if job.is_finished:
+            return jsonify({"status": "finished", "result": job.result}), 200
+        else:
+            return jsonify({"status": job.get_status()}), 200
+    except Exception as e:
+        logging.error(f"Error in /get_job: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @app.route("/gather", methods=["POST"])
