@@ -15,17 +15,16 @@ import redis
 from rq.job import Job
 
 logging.basicConfig(level=logging.INFO)
-
 app = Flask(__name__, static_folder='frontend/build', static_url_path='/')
 CORS(app)
 
-# Connect to MongoDB
+# Connect to MongoDB (Change uri to your own MangoDB uri)
 uri = os.environ.get("MONGO_URI")
 client = MongoClient(uri, server_api=ServerApi('1'))
 db = client["macysdata"]
 collection = db["items"]
 
-# Connect to Redis
+# Connect to Redis (For Heroku)
 redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
 logging.info(f"Connecting to Redis at: {redis_url}")
 conn = redis.from_url(redis_url)

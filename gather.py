@@ -3,10 +3,12 @@ from playwright.async_api import async_playwright
 import pandas as pd
 import re
 
-username = 'brd-customer-hl_01bbc4c4-zone-macys_scrape'
-password = '4i7oe41b7dpl'
+
+#Brightdata login Informartion
+username = ''
+password = ''
 auth = f'{username}:{password}'
-host = 'brd.superproxy.io:9222'
+host = ''
 browser_url = f'wss://{auth}@{host}'
 
 
