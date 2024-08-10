@@ -4,11 +4,10 @@ import pandas as pd
 import re
 
 
-#Brightdata login Informartion
-username = ''
-password = ''
+username = 'brd-customer-hl_01bbc4c4-zone-macys_scrape'
+password = '4i7oe41b7dpl'
 auth = f'{username}:{password}'
-host = ''
+host = 'brd.superproxy.io:9222'
 browser_url = f'wss://{auth}@{host}'
 
 

@@ -5,6 +5,7 @@ import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import magnifying from './pictures/magnifying.png'
 import search from './pictures/search.png'
+import cement from './pictures/cement.png'
 
 function App() {
   const [data, setData] = useState([]);
@@ -318,6 +319,7 @@ function App() {
             </div>
         )}
         <div className="productSearch">
+          <img src = {cement} className = "background" alt ="background"/>
 
           <div className = "search">
           <form onSubmit={handleSubmit} className = "search-bar">

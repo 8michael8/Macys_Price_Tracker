@@ -17,6 +17,7 @@ body.no-scroll {
   transition: scale 0.5s;
   width: 70%;
   margin-left: 5vw;
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 
@@ -48,7 +49,7 @@ body.no-scroll {
 }
 
 .product:hover {
-  background: rgba(255,255,255, 0.4);
+  background: rgba(255,255,255, 0.9);
   scale: 1.05;
 }
 
@@ -88,7 +89,7 @@ body.no-scroll {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(255, 255, 255, 0.8); /* Optional: Add a slight background to make the popup stand out */
+  background-color: rgba(255, 255, 255, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -216,12 +217,15 @@ body.no-scroll {
   position: absolute;
   left: 50%;
   width: 50%;
-  min-height: 101vh;
-  min-height: 100%; /* Ensure it adapts to any parent element’s height */
-  background-image: url('./pictures/cement.png');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  min-height: 110vh;
+}
+
+.background {
+  width: 50vw; /* Make the image scale to the width of the container */
+  height: 101vh; /* Maintain the aspect ratio */
+  position: fixed;
+  z-index: -1;
+  opacity: 60%;
 }
 
 
@@ -264,7 +268,7 @@ body.no-scroll {
 
 .search-bar {
   width: 80%;
-  background: rgba(255,255,255, 0.2);
+  background: rgba(255,255,255, 0.8);
   display: flex;
   align-items: center;
   border-radius: 60px;
