@@ -1,27 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap');
 body {
-  background-color: white;
+  font-family: 'Roboto Condensed', sans-serif;
+  overflow-x: hidden;
+  background: #ebeef1;
 }
 
 body.no-scroll {
   overflow: hidden;
 }
-.load2 {
-  display: none;
-}
-.load {
-  display: contents;
+.product{
+  border: 0.2vw solid rgba(0,0,0,0.5);
+  padding: 1vw;
+  margin-bottom: 1.5vh;
+  border-radius: 1vw;
+  transition: background-color 1s;
+  transition: scale 0.5s;
+  width: 70%;
+  margin-left: 5vw;
 }
 
-.product, .saved {
+
+.saved {
   border: 0.2vw solid black;
   padding: 1vw;
   margin-bottom: 1.5vh;
   border-radius: 1vw;
   transition: color 1s;
+  width: 70%;
+  margin-left: 2vw;
+
+}
+
+.saved button {
+  font-size: 0.7vw;
+  margin-left: 8vw;
+  width: 20%;
+  height: 3vh;
+  cursor: pointer;
+  border: none;
+  border-radius: 2vw;
+  box-shadow: 10px 10px 10px -1px rgba(10, 99, 169, 0.16), -10px -10px 10px -1px rgba(255,255,255,0.7);
+  background: #ebeef1;
+}
+
+.saved button.delete {
+  box-shadow: 10px 10px 10px -1px rgba(10, 99, 169, 0.16), -10px -10px 10px -1px rgba(255,255,255,0.7);
 }
 
 .product:hover {
-    background-color: yellow;
+  background: rgba(255,255,255, 0.4);
+  scale: 1.05;
 }
 
 
@@ -54,6 +82,70 @@ body.no-scroll {
   position: relative;
 }
 
+.loadingScreen {
+  position: fixed; /* Fixes the loading screen to the viewport */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.8); /* Optional: Add a slight background to make the popup stand out */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Ensures it's on top of other content */
+}
+
+.loadingScreen2 {
+  display: none;
+}
+
+.magnifying {
+  z-index: 7;
+  position: absolute;
+  width: 12vw;
+  opacity: 90%;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center the magnifying glass */
+  animation: infinity 4s infinite;
+}
+
+@keyframes infinity {
+  0%, 100% {
+    transform: translate(-50%, -50%) translateX(0) translateY(0);
+  }
+  25% {
+    transform: translate(-50%, -50%) translateX(7vw) translateY(7vw);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateX(0) translateY(17vw);
+  }
+  75% {
+    transform: translate(-50%, -50%) translateX(-7vw) translateY(7vw);
+  }
+}
+
+.loading {
+  color: black;
+  top: 60%;
+  left: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%); /* Center the text */
+  z-index: 6;
+  font-size: 2vw;
+}
+.loading span {
+  font-size: 1vw;
+}
+
+.starLoad {
+  position: absolute;
+  color: red;
+  font-size: 14vw;
+  top: 1%;
+}
+
+
 .close-button {
   position: absolute;
   background: none;
@@ -81,4 +173,119 @@ body.no-scroll {
   border: 1px solid black;
   padding: 1vw;
   box-sizing: border-box;
+}
+
+.savedProducts {
+  position: absolute;
+  left: 1%;
+  width: 55%;
+  align-items: flex-end;
+}
+
+
+.savedProducts .title {
+  position: relative;
+  font-size: 5vw;
+  margin-top: -3vh;
+}
+
+.savedProducts .title::before {
+  color: red;
+  content: '★';
+  margin-right: 0.5vw;
+  font-size: 6vw;
+}
+
+
+.savedProducts .title span {
+  position: absolute;
+  font-size: 1vw;
+  top: 5vh;
+  left: 16vw;
+
+}
+
+.savedProducts h2 {
+  font-size: 1.5vw;
+  margin-top: -7vh;
+  margin-left: 8vw;
+  letter-spacing: 1.9vw;
+}
+.productSearch {
+  margin-top: -1vh;
+  position: absolute;
+  left: 50%;
+  width: 50%;
+  min-height: 101vh;
+  min-height: 100%; /* Ensure it adapts to any parent element’s height */
+  background-image: url('./pictures/cement.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+
+
+.productSearch li{
+  list-style-type: none;
+}
+
+.productSearch input[type="text"] {
+  background: transparent;
+  flex: 1;
+  border: 0;
+  outline: none;
+  padding: 24px 20px;
+  font-size: 20px;
+  color: black;
+}
+.productSearch button img{
+ width: 1.5vw;
+}
+
+.productSearch button {
+  border: 0;
+  border-radius: 50%;
+  width: 3vw;
+  height: 7vh;
+  background: #58629b;
+  cursor: pointer;
+  background: rgba(0,0,0,0.5);
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10vh;
+  width: 100%;
+  margin-bottom: 6vh;
+}
+
+.search-bar {
+  width: 80%;
+  background: rgba(255,255,255, 0.2);
+  display: flex;
+  align-items: center;
+  border-radius: 60px;
+  padding: 0.3vw;
+  backdrop-filter: blur(4px) saturate(180%);
+}
+
+.noItems {
+  width: 80%;
+  font-size: 1.2vw;
+  margin-top: -1.5vh;
+  color: rgba(0,0,0,0.5);
+}
+
+.titleBorder {
+  border-bottom: 2px solid black;
+  width: 80%;
+  margin-left: 2vw;
+
+}
+
+.savedText {
+    margin-left: 2vw;
 }
