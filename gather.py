@@ -37,11 +37,11 @@ async def scrape_macys_data(keyword):
 
                 print("Waiting for main container", flush=True)
 
-                await page.wait_for_selector('div.mainContainer.grid-container', timeout=60000)
+                await page.wait_for_selector('div#app', timeout=60000)
                 print('Main container found', flush=True)
 
                 # Select the main container
-                main_container = await page.query_selector('div.mainContainer.grid-container')
+                main_container = await page.query_selector('div#app')
                 success = True
             except Exception as e:
                 print(f"Attempt {attempts + 1} failed: {e}", flush=True)
@@ -57,7 +57,7 @@ async def scrape_macys_data(keyword):
             return []
 
         # Extract listings within the main container
-        listings = await main_container.query_selector_all('div.productDescription')
+        listings = await main_container.query_selector_all('div.product-description')
 
         print(f"Found {len(listings)} listings.")
 
@@ -66,21 +66,23 @@ async def scrape_macys_data(keyword):
             result = {}
 
             # Product Name
-            brand_element = await listing.query_selector('div.productBrand')
+            brand_element = await listing.query_selector('div.product-brand')
             brand_name = (await brand_element.inner_text()).strip() if brand_element else 'N/A'
 
             # Product description
-            product_desc_link = await listing.query_selector('a.productDescLink')
+            product_desc_link = await listing.query_selector('a.brand-and-name')
             product_desc = (await product_desc_link.inner_text()).strip() if product_desc_link else 'N/A'
 
             result['brand_name'] = brand_name
 
             # Full product name
-            result['product_name'] = f"{product_desc}".strip().replace('\n', '').replace('adidas', '')
+            product_element = await listing.query_selector('div.product-name')
+            product_name = (await product_element.inner_text()).strip() if product_element else 'N/A'
+            result['product_name'] = product_name
 
 
             # Price
-            original_price_element = await listing.query_selector('span.regular')
+            original_price_element = await listing.query_selector('span.price-reg')
             sale_price_element = await listing.query_selector('span.discount')
 
             if original_price_element:
@@ -89,16 +91,18 @@ async def scrape_macys_data(keyword):
                 result['original_price'] = 'N/A'
 
             if sale_price_element:
+                original_price_element = await listing.query_selector('span.price-strike')
+                result['original_price'] = (await original_price_element.inner_text()).strip()
                 result['sale_price'] = (await sale_price_element.inner_text()).strip().replace('Sale ', '')
             else:
                 result['sale_price'] = 'N/A'
 
             # Rating and Number of reviews
-            rating_element = await listing.query_selector('div.stars')
+            rating_element = await listing.query_selector('div.rating fieldset')
             if rating_element:
                 rating_text = (await rating_element.get_attribute('aria-label')).strip()
                 # Extract rating and number of reviews from the aria-label attribute
-                rating_match = re.search(r'([\d\.]+) out of 5 rating with ([\d,]+) reviews', rating_text)
+                rating_match = re.search(r'Rated ([\d\.]+) stars with ([\d,]+) reviews', rating_text)
                 if rating_match:
                     result['rating'] = rating_match.group(1)
                     result['number_of_reviews'] = int(rating_match.group(2).replace(',', ''))
